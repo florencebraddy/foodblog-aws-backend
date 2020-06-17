@@ -22,10 +22,10 @@ const pool = sql.createPool({
     const conn = await pool.getConnection();
 
     conn.query("CREATE DATABASE IF NOT EXISTS foodblog");
-    conn.query("USER foodblog");
+    conn.query("USE foodblog");
 
     const userDb = await conn.query(
-      "CREATE TABLE IF NOT EXISTS user (username, VARCHAR(300) UNIQUE NOT NULL, profilepic VARCHAR(255), bio VARCHAR (4000), PRIMARY KEY(username) )"
+      "CREATE TABLE IF NOT EXISTS user (username VARCHAR(300) UNIQUE NOT NULL, profilepic VARCHAR(255), bio VARCHAR (4000), PRIMARY KEY(username) )"
     );
     console.log(userDb);
 

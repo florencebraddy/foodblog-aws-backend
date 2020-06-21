@@ -47,16 +47,34 @@ app.post("/user", authorizeUser, async (request, response) => {
   }
 });
 
+app.get("/user", authorizeUser, async (request, response) => {
+  try {
+    console.log("GET ONE USER");
+
+    const conn = await pool.getConnection();
+    const singleUser = await conn.execute(
+      `SELECT * FROM foodblog.user WHERE username = ?`,
+      [request.query.username]
+    );
+    conn.release();
+    console.log(singleUser);
+    response.status(200).send({ message: singleUser[0] });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
 app.get("/users", authorizeUser, async (request, response) => {
   try {
-    console.log("GET USERS");
+    console.log("GET ALL USERS");
 
     const conn = await pool.getConnection();
     const recordSet = await conn.query(`SELECT * FROM foodblog.user`);
     conn.release();
     console.log(recordSet);
 
-    //adding 0 to recordSet response enables us to hide binary representation of info. We don't need this, we only need to first array (the string representation).
+    //adding [0] to recordSet response enables us to hide binary representation of info. We don't need this, we only need to first array (the string representation).
     response.status(200).send({ message: recordSet[0] });
   } catch (error) {
     console.log(error);

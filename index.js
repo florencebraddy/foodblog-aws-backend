@@ -21,7 +21,6 @@ app.post("/user", authorizeUser, async (request, response) => {
     if (!request.body.username) {
       response.status(400).send({ message: "No Username Entered" });
     }
-
     const conn = await pool.getConnection();
     const queryResponse = await conn.execute(
       `INSERT INTO foodblog.user (username, profilepic, bio) VALUES (?, ?, ?)`,
@@ -52,13 +51,13 @@ app.get("/user", authorizeUser, async (request, response) => {
     console.log("GET ONE USER");
 
     const conn = await pool.getConnection();
-    const singleUser = await conn.execute(
+    const recordSet = await conn.execute(
       `SELECT * FROM foodblog.user WHERE username = ?`,
       [request.query.username]
     );
     conn.release();
-    console.log(singleUser);
-    response.status(200).send({ message: singleUser[0] });
+    console.log(recordSet);
+    response.status(200).send({ message: recordSet[0] });
   } catch (error) {
     console.log(error);
     response.status(500).send({ message: error });
@@ -70,7 +69,7 @@ app.get("/users", authorizeUser, async (request, response) => {
     console.log("GET ALL USERS");
 
     const conn = await pool.getConnection();
-    const recordSet = await conn.query(`SELECT * FROM foodblog.user`);
+    const recordSet = await conn.execute(`SELECT * FROM foodblog.user`);
     conn.release();
     console.log(recordSet);
 
@@ -94,10 +93,8 @@ app.put("/user", authorizeUser, async (request, response) => {
     );
 
     console.log(selectQuery[0][0]);
-    const selectedUser = selectQuery[0][0];
 
-    if (selectedUser.profilepic == null) selectedUser.profilepic = null;
-    if (selectedUser.bio == null) selectedUser.bio = null;
+    const selectedUser = selectQuery[0][0];
 
     const conn = await pool.getConnection();
     const queryResponse = await conn.execute(
@@ -111,9 +108,31 @@ app.put("/user", authorizeUser, async (request, response) => {
         request.body.username
       ]
     );
+
+    //request.body.profilepic ? request.body.profilepic: selectedUser.profilepic allows user to perform a put request without a user entering profile pic, and won't show null for any profile pic entered by user prior
+
     conn.release();
     console.log(queryResponse);
     response.status(200).send({ message: queryResponse });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
+app.delete("/user", authorizeUser, async (request, response) => {
+  try {
+    console.log("DELETE USER");
+
+    const conn = await pool.getConnection();
+    const recordSet = await conn.execute(
+      `DELETE FROM foodblog.user WHERE username = ?`,
+      [request.body.username]
+    );
+    conn.release();
+    console.log(recordSet);
+
+    response.status(200).send({ message: recordSet[0] });
   } catch (error) {
     console.log(error);
     response.status(500).send({ message: error });

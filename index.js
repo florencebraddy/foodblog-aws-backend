@@ -82,6 +82,44 @@ app.get("/users", authorizeUser, async (request, response) => {
   }
 });
 
+app.put("/user", authorizeUser, async (request, response) => {
+  try {
+    console.log("PUT USER");
+    if (!request.body.username) {
+      response.status(400).send({ message: "No Username Entered" });
+    }
+    const selectQuery = await pool.execute(
+      `SELECT * FROM foodblog.user WHERE username = ?`,
+      [request.body.username]
+    );
+
+    console.log(selectQuery[0][0]);
+    const selectedUser = selectQuery[0][0];
+
+    if (selectedUser.profilepic == null) selectedUser.profilepic = null;
+    if (selectedUser.bio == null) selectedUser.bio = null;
+
+    const conn = await pool.getConnection();
+    const queryResponse = await conn.execute(
+      `UPDATE foodblog.user SET username = ?, profilepic = ?, bio = ? WHERE username = ?`,
+      [
+        request.body.username,
+        request.body.profilepic
+          ? request.body.profilepic
+          : selectedUser.profilepic,
+        request.body.bio ? request.body.bio : selectedUser.bio,
+        request.body.username
+      ]
+    );
+    conn.release();
+    console.log(queryResponse);
+    response.status(200).send({ message: queryResponse });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
 function authorizeUser(request, response, next) {
   next();
 }

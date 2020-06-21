@@ -122,8 +122,6 @@ app.put("/user", authorizeUser, async (request, response) => {
       ]
     );
 
-    //request.body.profilepic ? request.body.profilepic: selectedUser.profilepic allows user to perform a put request without a user entering profile pic, and won't show null for any profile pic entered by user prior
-
     conn.release();
     console.log(queryResponse);
     response.status(200).send({ message: queryResponse });

@@ -15,7 +15,7 @@ const pool = sql.createPool({
   password: process.env.DB_PASSWORD
 });
 
-app.post("/user", async (request, response) => {
+app.post("/user", authorizeUser, async (request, response) => {
   try {
     console.log("POST USER");
     if (!request.body.username) {
@@ -41,6 +41,23 @@ app.post("/user", async (request, response) => {
     conn.release();
     console.log(queryResponse);
     response.status(200).send({ message: queryResponse });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
+app.get("/users", authorizeUser, async (request, response) => {
+  try {
+    console.log("GET USERS");
+
+    const conn = await pool.getConnection();
+    const recordSet = await conn.query(`SELECT * FROM foodblog.user`);
+    conn.release();
+    console.log(recordSet);
+
+    //adding 0 to recordSet response enables us to hide binary representation of info. We don't need this, we only need to first array (the string representation).
+    response.status(200).send({ message: recordSet[0] });
   } catch (error) {
     console.log(error);
     response.status(500).send({ message: error });

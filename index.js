@@ -47,4 +47,8 @@ app.post("/user", async (request, response) => {
   }
 });
 
+function authorizeUser(request, response, next) {
+  next();
+}
+
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

@@ -17,9 +17,30 @@ const pool = sql.createPool({
 
 app.post("/user", async (request, response) => {
   try {
+    console.log("POST USER");
     if (!request.body.username) {
       response.status(400).send({ message: "No Username Entered" });
     }
+
+    const conn = await pool.getConnection();
+    const queryResponse = await conn.execute(
+      `INSERT INTO foodblog.user (username, profilepic, bio) VALUES (?, ?, ?)`,
+      [
+        request.body.username,
+        request.body.profilepic ? request.body.profilepic : null,
+        request.body.bio ? request.body.bio : null
+      ]
+    );
+
+    //don't do this the above way, unless you want a sql injection attack
+    // const conn = await pool.getConnection();
+    // const queryResponse = await conn.query(
+    //   `INSERT INTO foodblog.user (username, profilepic, bio) VALUES (${request.body.username}, ${request.body.profilepic}, ${request.body.bio})`
+    // );
+
+    conn.release();
+    console.log(queryResponse);
+    response.status(200).send({ message: queryResponse });
   } catch (error) {
     console.log(error);
     response.status(500).send({ message: error });

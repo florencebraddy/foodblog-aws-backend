@@ -252,6 +252,44 @@ app.put("/foodblogpost", authorizeUser, async (request, response) => {
   }
 });
 
+app.post("/foodblogpic", authorizeUser, async (request, response) => {
+  try {
+    console.log("POST food blog picture");
+    if (!request.body.username) {
+      response.status(400).send({ message: "This blogpic is missing a param" });
+    }
+    const conn = await pool.getConnection();
+    const queryResponse = await conn.execute(
+      `INSERT INTO foodblog.foodblogpic (s3uuid,description,foodblogpost) VALUES (?, ?, ?)`,
+      [
+        request.body.s3uuid,
+        request.body.description ? request.body.description : null,
+        request.body.foodblogpost
+      ]
+    );
+    conn.release();
+    console.log(queryResponse);
+    response.status(200).send({ message: queryResponse });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
+app.get("/foodblogpics", authorizeUser, async (request, response) => {
+  try {
+    console.log("GET ALL food blog pics");
+    const conn = await pool.getConnection();
+    const recordSet = await conn.query(`SELECT * FROM foodblog.foodblogpic`);
+    conn.release();
+    console.log(recordSet[0]);
+    response.status(200).send({ message: recordSet[0] });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
 //this is where you would check for authorization of user
 function authorizeUser(request, response, next) {
   next();

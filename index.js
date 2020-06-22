@@ -282,8 +282,51 @@ app.get("/foodblogpics", authorizeUser, async (request, response) => {
     const conn = await pool.getConnection();
     const recordSet = await conn.query(`SELECT * FROM foodblog.foodblogpic`);
     conn.release();
-    console.log(recordSet[0]);
-    response.status(200).send({ message: recordSet[0] });
+    console.log(recordSet);
+    response.status(200).send({ message: recordSet });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
+app.get("/everything", authorizeUser, async (request, response) => {
+  try {
+    console.log("GET EVERYTHING FROM ALL TABLES");
+    const conn = await pool.getConnection();
+    const queryResponse = await conn.execute(
+      `SELECT * FROM foodblog.foodblogpic pics 
+          JOIN foodblog.foodblogpost posts
+          ON pics.foodblogpost = posts.id
+          JOIN foodblog.user users	
+          ON posts.username = users.username`
+    );
+    conn.release();
+    console.log(queryResponse[0]);
+    response.status(200).send({ message: queryResponse[0] });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
+app.get("/everythingbyuser", authorizeUser, async (request, response) => {
+  try {
+    console.log("GET EVERYTHING FROM A USER");
+    const conn = await pool.getConnection();
+    const queryResponse = await conn.execute(
+      `SELECT * FROM foodblog.foodblogpic pics 
+          JOIN foodblog.foodblogpost posts
+          ON pics.foodblogpost = posts.id
+          JOIN foodblog.user users	
+          ON posts.username = users.username
+          WHERE users.username = ?`,
+
+      [request.query.username]
+    );
+    conn.release();
+    console.log(queryResponse[0]);
+    response.status(200).send({ message: queryResponse[0] });
   } catch (error) {
     console.log(error);
     response.status(500).send({ message: error });

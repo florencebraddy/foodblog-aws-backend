@@ -139,6 +139,51 @@ app.delete("/user", authorizeUser, async (request, response) => {
   }
 });
 
+app.post("/foodblogpost", authorizeUser, async (request, response) => {
+  try {
+    console.log("POST food blog post");
+    if (!request.body.username) {
+      response.status(400).send({ message: "This blog post has no user" });
+    }
+    const conn = await pool.getConnection();
+    const queryResponse = await conn.execute(
+      `INSERT INTO foodblog.foodblogpost (username,title,description,date) VALUES (?, ?, ?, ?)`,
+      [
+        request.body.username,
+        request.body.title ? request.body.title : null,
+        request.body.description ? request.body.description : null,
+        new Date()
+      ]
+    );
+    conn.release();
+    console.log(queryResponse);
+    response.status(200).send({ message: queryResponse });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
+app.get("/foodblogposts", authorizeUser, async (request, response) => {
+  try {
+    console.log("GET ALL food blog posts");
+    const conn = await pool.getConnection();
+    const recordSet = await conn.query(
+      `SELECT * FROM foodblogpost.foodblog.post`
+
+      // this is an example of how you can filter out/in certain items from table
+      // `SELECT date, bio, users.username FROM foodblog.user users JOIN foodblog.foodblogpost foodposts ON users.username = foodposts.username`
+    );
+    conn.release();
+    console.log(recordSet[0]);
+    response.status(200).send({ message: recordSet[0] });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error });
+  }
+});
+
+//this is where you would check for authorization of user
 function authorizeUser(request, response, next) {
   next();
 }

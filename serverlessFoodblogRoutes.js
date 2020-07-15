@@ -300,6 +300,23 @@ app.get("/foodblogpics", authorizeUser, async (request, response) => {
   }
 });
 
+// app.get("/foodblogpic", authorizeUser, async (request, response) => {
+//   try {
+//     console.log("GET one food blog pic");
+//     const conn = await pool.getConnection();
+//     const recordSet = await conn.execute(
+//       `SELECT * FROM foodblog.foodblogpic WHERE s3uuid = ?`,
+//       [request.query.s3uuid]
+//     );
+//     conn.release();
+//     console.log(recordSet[0]);
+//     response.status(200).send({ message: recordSet[0] });
+//   } catch (error) {
+//     console.log(error);
+//     response.status(500).send({ message: error });
+//   }
+// });
+
 app.get("/everything", authorizeUser, async (request, response) => {
   try {
     console.log("GET EVERYTHING FROM ALL TABLES");

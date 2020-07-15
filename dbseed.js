@@ -1,24 +1,42 @@
 require("dotenv").config();
 const sql = require("mysql2/promise");
 
-// const pool = sql.createPool({
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD
-// });
+const pool = sql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD
+});
 
 //this is a async function to test connection to db
-// (async function testConnection() {
-//   try {
-//     const conn = await pool.getConnection();
-//     console.log("Connection Created");
-//     conn.release();
-//   } catch (error) {
-//     console.log(error);
-//   }
-// })();
+(async function testConnection() {
+  try {
+    const conn = await pool.getConnection();
+    console.log("Connection Created");
+    conn.release();
+  } catch (error) {
+    console.log(error);
+  }
+})();
 
-// (async function createUserTable() {
+(async function() {
+  try {
+    const conn = await pool.getConnection();
+
+    conn.query("CREATE DATABASE IF NOT EXISTS foodblog");
+    conn.query("USE foodblog");
+
+    const userDb = await conn.query(
+      "CREATE TABLE IF NOT EXISTS users_to_groups (user VARCHAR(255) NOT NULL, group_name VARCHAR(255) NOT NULL, PRIMARY KEY(user,group_name), FOREIGN KEY (user) REFERENCES user(username), FOREIGN KEY (group_name) REFERENCES user_groups(groupname) )"
+    );
+    console.log(userDb);
+
+    conn.release();
+  } catch (error) {
+    console.log(error);
+  }
+})();
+
+// (async function() {
 //   try {
 //     const conn = await pool.getConnection();
 
@@ -26,7 +44,7 @@ const sql = require("mysql2/promise");
 //     conn.query("USE foodblog");
 
 //     const userDb = await conn.query(
-//       "CREATE TABLE IF NOT EXISTS user (username VARCHAR(255) UNIQUE NOT NULL, profilepic VARCHAR(255), bio VARCHAR(3000), PRIMARY KEY(username))"
+//       "CREATE TABLE IF NOT EXISTS user_groups (groupname VARCHAR(255) PRIMARY KEY, description VARCHAR(255))"
 //     );
 //     console.log(userDb);
 

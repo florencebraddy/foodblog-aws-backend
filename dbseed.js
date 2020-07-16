@@ -1,40 +1,40 @@
-require("dotenv").config();
-const sql = require("mysql2/promise");
+// require("dotenv").config();
+// const sql = require("mysql2/promise");
 
-const pool = sql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD
-});
+// const pool = sql.createPool({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD
+// });
 
-//this is a async function to test connection to db
-(async function testConnection() {
-  try {
-    const conn = await pool.getConnection();
-    console.log("Connection Created");
-    conn.release();
-  } catch (error) {
-    console.log(error);
-  }
-})();
+// //this is a async function to test connection to db
+// (async function testConnection() {
+//   try {
+//     const conn = await pool.getConnection();
+//     console.log("Connection Created");
+//     conn.release();
+//   } catch (error) {
+//     console.log(error);
+//   }
+// })();
 
-(async function() {
-  try {
-    const conn = await pool.getConnection();
+// (async function() {
+//   try {
+//     const conn = await pool.getConnection();
 
-    conn.query("CREATE DATABASE IF NOT EXISTS foodblog");
-    conn.query("USE foodblog");
+//     conn.query("CREATE DATABASE IF NOT EXISTS foodblog");
+//     conn.query("USE foodblog");
 
-    const userDb = await conn.query(
-      "CREATE TABLE IF NOT EXISTS users_to_groups (user VARCHAR(255) NOT NULL, group_name VARCHAR(255) NOT NULL, PRIMARY KEY(user,group_name), FOREIGN KEY (user) REFERENCES user(username), FOREIGN KEY (group_name) REFERENCES user_groups(groupname) )"
-    );
-    console.log(userDb);
+//     const userDb = await conn.query(
+//       "CREATE TABLE IF NOT EXISTS friendships (user1 VARCHAR(255) NOT NULL, user2 VARCHAR(255) NOT NULL, STATUS VARCHAR (255) NOT NULL, PRIMARY KEY(user1, user2), FOREIGN KEY (user1) REFERENCES user(username), FOREIGN KEY (user2) REFERENCES user(username) )"
+//     );
+//     console.log(userDb);
 
-    conn.release();
-  } catch (error) {
-    console.log(error);
-  }
-})();
+//     conn.release();
+//   } catch (error) {
+//     console.log(error);
+//   }
+// })();
 
 // (async function() {
 //   try {
